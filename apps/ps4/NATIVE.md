@@ -6,3 +6,11 @@ Goal: run Echo Engine as a native program on a jailbroken PS4 (GoldHEN), built w
 2. A minimal Lime/OpenFL app that draws an image on the PS4 (toolchain for hxcpp + SDL2/piglet from OpenOrbis).
 3. Audio and gamepad.
 4. The full game and its assets inside the PKG.
+
+## Status
+
+- Step 1 done: `native.yml` (Actions > Native build probe) builds Echo Engine as native C++ for Linux with `-Dnative_lite`
+  (no Lua, HScript, Discord, videos, crash handler or update check). The web-only online and Echo Live code is guarded for it.
+- Step 2 (next): the hard one. Lime's native layer (`lime.ndll`: window, OpenGL ES, input, audio, files) has to be built for the
+  PS4 with the OpenOrbis clang, on top of OpenOrbis' SDL2 / piglet ports, plus an hxcpp toolchain file for that target.
+  This cannot be tested without a console: every attempt needs an installed PKG and its log (klog).
