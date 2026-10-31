@@ -7,17 +7,22 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: krdlab/setup-haxe@v1
         with:
           haxe-version: 4.3.6
       - run: |
           haxelib setup ~/haxelib
           haxelib install hxcpp >/dev/null
-          H=$(haxelib libpath hxcpp)
+          cd apps/ps4/hxtest
           {
-            echo "hxcpp: $H"; haxelib list | grep hxcpp
-            ls $H/toolchain
-            echo ---- linux-toolchain; grep -n "CXX\|CC\b\|HXCPP_CLANG\|HXCPP_\|<flag\|<exe\|<set name=\"\(CXX\|AR\|LINKER\)" $H/toolchain/linux-toolchain.xml | head -60
-            echo ---- gcc-toolchain; grep -n "<compiler\|<linker\|<exe\|exe=\|<flag" $H/toolchain/gcc-toolchain.xml | head -40
+            haxe -cpp out -main Main -D HXCPP_M64 -D no-compilation 2>&1 | tail -5
+            ls out
+            cat out/Build.xml | head -60
+            echo ---- hxcpp tree
+            H=$(haxelib libpath hxcpp)
+            ls $H/src $H/src/hx | head -80
+            echo ---- hx Build.xml
+            grep -n "<file\|<section\|<compilerflag\|<files\|<target" $H/src/hx/Build.xml | head -80
           } 2>&1 > probe.txt
           python3 -c "t=open('probe.txt').read().replace('%','%25').replace('\n','%0A'); print('::notice title=probe::'+t)"
