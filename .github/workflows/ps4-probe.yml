@@ -1,0 +1,23 @@
+name: PS4 probe
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.3.6
+      - run: |
+          haxelib setup ~/haxelib
+          haxelib install hxcpp >/dev/null
+          H=$(haxelib libpath hxcpp)
+          {
+            echo "hxcpp: $H"; haxelib list | grep hxcpp
+            ls $H/toolchain
+            echo ---- linux-toolchain; grep -n "CXX\|CC\b\|HXCPP_CLANG\|HXCPP_\|<flag\|<exe\|<set name=\"\(CXX\|AR\|LINKER\)" $H/toolchain/linux-toolchain.xml | head -60
+            echo ---- gcc-toolchain; grep -n "<compiler\|<linker\|<exe\|exe=\|<flag" $H/toolchain/gcc-toolchain.xml | head -40
+          } 2>&1 > probe.txt
+          python3 -c "t=open('probe.txt').read().replace('%','%25').replace('\n','%0A'); print('::notice title=probe::'+t)"
