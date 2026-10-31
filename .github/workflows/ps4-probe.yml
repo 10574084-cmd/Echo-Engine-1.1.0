@@ -1,0 +1,16 @@
+name: PS4 probe
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          {
+            git clone -q --depth 1 https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain /tmp/oo
+            cd /tmp/oo/samples/piglet/piglet
+            grep -n "glClearColor\|glClear\|rotat\|Rotat\|angle\|glDrawArrays\|glDrawElements\|cube\|Cube" PigletApplication.cpp | head -30
+          } 2>&1 > probe.txt
+          python3 -c "t=open('probe.txt').read().replace('%','%25').replace('\n','%0A'); print('::notice title=probe::'+t)"
