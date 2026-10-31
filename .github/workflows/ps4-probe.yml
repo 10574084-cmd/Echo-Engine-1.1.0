@@ -1,0 +1,22 @@
+name: PS4 probe
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Look at the piglet and SDL2 samples
+        run: |
+          {
+            git clone -q --depth 1 https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain /tmp/oo
+            cd /tmp/oo/samples
+            echo ---- piglet tree; find piglet -type f | head -30
+            echo ---- piglet Makefile; grep -n "^LIBS\|^TITLE\|EXTRAFLAGS\|sce_module\|LIBMODULES\|prx" piglet/Makefile
+            echo ---- piglet src; ls piglet/piglet; wc -l piglet/piglet/*
+            echo ---- SDL2 tree; find SDL2 -type f | head -20
+            echo ---- SDL2 Makefile; grep -n "^LIBS\|^TITLE\|EXTRAFLAGS\|sce_module\|LIBMODULES\|prx\|SDL" SDL2/Makefile | head
+            echo ---- graphics; ls graphics graphics/graphics 2>/dev/null | head
+          } 2>&1 | head -120 > probe.txt
+          python3 -c "import sys; t=open('probe.txt').read().replace('%','%25').replace('\r','').replace('\n','%0A'); print('::notice title=probe::'+t)"
